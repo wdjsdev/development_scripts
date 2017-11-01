@@ -91,9 +91,13 @@ function container()
 		}
 		else if(!namePat.test(obj.name) || !artworkTargets[obj.name])
 		{
-			if(artworkTargets[obj.name] || obj.name.toLowerCase().indexOf("nfhs")>-1)
+			if(artworkTargets[obj.name])
 			{
 				result = artworkTargets[obj.name];
+			}
+			else if(obj.name.toLowerCase().indexOf("nfhs")>-1)
+			{
+				result = obj.name;
 			}
 			else
 			{
