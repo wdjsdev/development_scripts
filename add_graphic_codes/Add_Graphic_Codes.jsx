@@ -7,6 +7,7 @@ function container()
 		var srcLayers = srcDoc.layers;
 		var srcDesc = srcLayers[0];
 		var newDescriptions = [];
+		var invalidDescriptionsLength = 0;
 		if(srcDesc.name.indexOf("FD") > -1 || srcDesc.name.indexOf("PS") > -1)
 		{
 			alert("Please make a new layer at the top of the layers panel and put your new text frames in that new layer.");
@@ -18,12 +19,25 @@ function container()
 			var len = srcDesc.textFrames.length;
 			for(var x=0;x<len;x++)
 			{
-				newDescriptions.push(srcDesc.textFrames[x]);
+				if(!srcDesc.textFrames[x].name)
+				{
+					invalidDescriptionsLength++;
+					srcDesc.textFrames[x].contents = "I NEED TO HAVE A NAME";
+				}
+				else
+				{
+					newDescriptions.push(srcDesc.textFrames[x]);
+				}
 			}
 			if(!newDescriptions.length)
 			{
 				valid = false;
 				alert("No new text frames were found..");
+			}
+			if(invalidDescriptionsLength)
+			{
+				alert(invalidDescriptionsLength + " of your text frames did not have a name. Please undo, name those text frames and try again.");
+				valid = false;
 			}
 		}
 		if(valid)
@@ -51,6 +65,7 @@ function container()
 			{
 				newDescriptions[x].duplicate(infoLay);
 			}
+			infoLay.locked = true;
 		}
 		else
 		{
