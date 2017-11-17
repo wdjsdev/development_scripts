@@ -101,8 +101,8 @@ function container()
 			}
 			else
 			{
-				errorList.push("Your proposed guide: " + obj.name + " has an invalid name. Please refer to the comprehensive list of artwork targets and be sure to use one of those options.");
-				result = false	
+				errorList.push("Your proposed guide: " + obj.name + " has an invalid name.\nDouble check for typos.");
+				// result = false	
 			}
 		}
 
