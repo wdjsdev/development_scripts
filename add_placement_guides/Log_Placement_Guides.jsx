@@ -9,7 +9,10 @@ Build number: 1.0
 
 function container()
 {
+	var valid = true;
+	eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.jsxbin\"");
 
+	
 	//verify the existence of a document
 	if(app.documents.length === 0)
 	{
@@ -138,7 +141,7 @@ function container()
 	var dbPath = "/Volumes/Customization/Library/Scripts/Script Resources/Data/placement_guides_database.js";
 
 	eval("#include \"" + dbPath + "\"");
-	#include "/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.js";
+
 
 
 	//all possible art locations and their respective code from the builder
@@ -237,7 +240,6 @@ function container()
 	var PI = Math.PI;
 	var thisConfig;
 
-	var valid = true;
 
 	var code = getCode(layers[0].name);
 

@@ -1,7 +1,7 @@
 function container()
 {
 	var valid = true;
-	eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.js\"");
+	eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.jsxbin\"");
 
 	var devComponents = "~/Desktop/automation/development_scripts/add_placement_guides/prepress_guides/components";
 	var prodComponents = "/Volumes/Customization/Library/Scripts/Script Resources/components/prepress_guides";

@@ -12,6 +12,9 @@ Build number: 1.0
 function addPlacementGuides()
 {
 
+	var valid = true;
+	eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.jsxbin\"");
+
 	//verify the existence of a document
 	if(app.documents.length === 0)
 	{
@@ -102,7 +105,7 @@ function addPlacementGuides()
 	var dbPath = "/Volumes/Customization/Library/Scripts/Script Resources/Data/placement_guides_database.js";
 
 	eval("#include \"" + dbPath + "\"");
-	#include "/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.js";
+
 
 	////////End/////////
 	////Data Storage////
@@ -121,7 +124,7 @@ function addPlacementGuides()
 	var infoLay = docRef.layers[0].layers["Information"];
 	var guidesLay;
 
-	var valid = true;
+
 	var errorList = [];
 
 	var code = getCode(layers[0].name);

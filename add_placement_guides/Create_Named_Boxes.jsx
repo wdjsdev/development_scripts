@@ -11,7 +11,9 @@ Build number: 1.0
 
 function container()
 {
-
+	var valid = true;
+	eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.jsxbin\"");
+	
 	//verify the existence of a document
 	if(app.documents.length === 0)
 	{
@@ -107,7 +109,7 @@ function container()
 	////Data Storage////
 	////////////////////
 
-	#include "/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.js";
+
 
 	//all possible art locations and their respective code from the builder
 	var artworkTargets = 
@@ -163,7 +165,6 @@ function container()
 	var swatches = docRef.swatches;
 	var errorList = [];
 
-	var valid = true;
 
 	var guidesNeeded = whichGuides();
 
