@@ -134,7 +134,12 @@ function makeDevFolders()
 		// var dest = new Folder("~/Desktop/" + code);
 		dest = Folder("/Volumes/Macintosh HD" + desktopFolder.selectDlg("Please choose a save location.").fsName + "/" + code);
 
-		if (!dest.exists)
+		if(!dest)
+		{
+			valid = false;
+			return;
+		}
+		else if (!dest.exists)
 		{
 			dest.create();
 		}
@@ -150,8 +155,14 @@ function makeDevFolders()
 		}
 	}
 
-	dialogWindow();
-	makeFolders();
+	if(valid)
+	{
+		dialogWindow();
+	}
+	if(valid)
+	{
+		makeFolders();
+	}
 
 }
 makeDevFolders();
