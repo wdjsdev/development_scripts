@@ -59,7 +59,7 @@ function container()
 						{
 							if(checkBoxes[x].value)
 							{
-								result.push(checkBoxes[x].text);
+								result.push(artworkTargets[checkBoxes[x].text]);
 							}
 						}
 						w.close();
