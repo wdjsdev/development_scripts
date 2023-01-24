@@ -7,65 +7,67 @@ Description: add data for placement guides to central database, or update existi
 Build number: 1.0
 */
 
-function container()
+function container ()
 {
 	var valid = true;
-	
 
-	function getUtilities()
+
+	function getUtilities ()
 	{
-		var result = [];
-		var utilPath = "/Volumes/Customization/Library/Scripts/Script_Resources/Data/";
-		var ext = ".jsxbin"
-
-		//check for dev utilities preference file
-		var devUtilitiesPreferenceFile = File("~/Documents/script_preferences/dev_utilities.txt");
-
-		if(devUtilitiesPreferenceFile.exists)
+		var utilNames = [ "Utilities_Container" ]; //array of util names
+		var utilFiles = []; //array of util files
+		//check for dev mode
+		var devUtilitiesPreferenceFile = File( "~/Documents/script_preferences/dev_utilities.txt" );
+		function readDevPref ( dp ) { dp.open( "r" ); var contents = dp.read() || ""; dp.close(); return contents; }
+		if ( devUtilitiesPreferenceFile.exists && readDevPref( devUtilitiesPreferenceFile ).match( /true/i ) )
 		{
-			devUtilitiesPreferenceFile.open("r");
-			var prefContents = devUtilitiesPreferenceFile.read();
-			devUtilitiesPreferenceFile.close();
-			if(prefContents === "true")
+			$.writeln( "///////\n////////\nUsing dev utilities\n///////\n////////" );
+			var devUtilPath = "~/Desktop/automation/utilities/";
+			utilFiles = [ devUtilPath + "Utilities_Container.js", devUtilPath + "Batch_Framework.js" ];
+			return utilFiles;
+		}
+
+		var dataResourcePath = customizationPath + "Library/Scripts/Script_Resources/Data/";
+
+		for ( var u = 0; u < utilNames.length; u++ )
+		{
+			var utilFile = new File( dataResourcePath + utilNames[ u ] + ".jsxbin" );
+			if ( utilFile.exists )
 			{
-				utilPath = "~/Desktop/automation/utilities/";
-				ext = ".js";
+				utilFiles.push( utilFile );
 			}
+
 		}
 
-		if($.os.match("Windows"))
+		if ( !utilFiles.length )
 		{
-			utilPath = utilPath.replace("/Volumes/","//AD4/");
+			alert( "Could not find utilities. Please ensure you're connected to the appropriate Customization drive." );
+			return [];
 		}
 
-		result.push(utilPath + "Utilities_Container" + ext);
-		result.push(utilPath + "Batch_Framework" + ext);
 
-		if(!result.length)
-		{
-			valid = false;
-			alert("Failed to find the utilities.");
-		}
-		return result;
+		return utilFiles;
 
 	}
-
 	var utilities = getUtilities();
-	for(var u=0,len=utilities.length;u<len;u++)
+
+	for ( var u = 0, len = utilities.length; u < len && valid; u++ )
 	{
-		eval("#include \"" + utilities[u] + "\"");	
+		eval( "#include \"" + utilities[ u ] + "\"" );
 	}
 
-	if(!valid)return;
+	if ( !valid || !utilities.length ) return;
+
+	DEV_LOGGING = user === "will.dowling";
 
 
 
-	
+
 	//verify the existence of a document
-	if(app.documents.length === 0)
+	if ( app.documents.length === 0 )
 	{
-		errorList.push("You must have a document open.");
-		sendErrors(errorList);
+		errorList.push( "You must have a document open." );
+		sendErrors( errorList );
 		return false;
 	}
 
@@ -77,24 +79,24 @@ function container()
 
 	//sendErrors Function Description
 	//Display any errors to the user in a preformatted list
-	function sendErrors(errorList)
+	function sendErrors ( errorList )
 	{
-		alert("The following errors occured:\n" + errorList.join("\n"));
+		alert( "The following errors occured:\n" + errorList.join( "\n" ) );
 	}
 
-	function getCode(layName)
+	function getCode ( layName )
 	{
 		var result;
 		var pat = /(.*)([-_][\d]{3,}([-_][a-z])?)/i;
-		result = layName.match(pat)[1];
+		result = layName.match( pat )[ 1 ];
 
 		return result;
 	}
 
-	function entryExist(code)
+	function entryExist ( code )
 	{
 		var result;
-		if(data[code])
+		if ( data[ code ] )
 		{
 			result = true;
 		}
@@ -105,7 +107,7 @@ function container()
 		return result;
 	}
 
-	function makeThemGuides(sel)
+	function makeThemGuides ( sel )
 	{
 		var result = {};
 		result.createdBy = user;
@@ -114,50 +116,50 @@ function container()
 		//create a property in the result object for each one
 		//log it's position, size and shape
 		var len = sel.length;
-		var g,n;
-		for(var x=0;x<len;x++)
+		var g, n;
+		for ( var x = 0; x < len; x++ )
 		{
-			g = sel[x];
-			n = checkName(g);
-			if(!n)continue;
+			g = sel[ x ];
+			n = checkName( g );
+			if ( !n ) continue;
 			g.stroked = false;
-			result[n] = {};
-			result[n].x = g.left;
-			result[n].y = g.top;
-			result[n].w = g.width;
-			result[n].h = g.height;
+			result[ n ] = {};
+			result[ n ].x = g.left;
+			result[ n ].y = g.top;
+			result[ n ].w = g.width;
+			result[ n ].h = g.height;
 		}
 
 		return result;
 	}
 
-	function checkName(obj)
+	function checkName ( obj )
 	{
 		var result = obj.name;
 		var namePat = /[A-Z]{4}/;
-		if(obj.name === "")
+		if ( obj.name === "" )
 		{
-			errorList.push("One of your proposed guides doesn't have a name.");
+			errorList.push( "One of your proposed guides doesn't have a name." );
 			result = false;
 		}
-		else if(!namePat.test(obj.name) || !artworkTargets[obj.name])
+		else if ( !namePat.test( obj.name ) || !artworkTargets[ obj.name ] )
 		{
-			if(artworkTargets[obj.name])
+			if ( artworkTargets[ obj.name ] )
 			{
-				result = artworkTargets[obj.name];
+				result = artworkTargets[ obj.name ];
 			}
-			else if(obj.name.toLowerCase().indexOf("nfhs")>-1)
+			else if ( obj.name.toLowerCase().indexOf( "nfhs" ) > -1 )
 			{
 				result = obj.name;
 			}
 			else
 			{
-				errorList.push("Your proposed guide: " + obj.name + " has an invalid name.\nDouble check for typos.");
+				errorList.push( "Your proposed guide: " + obj.name + " has an invalid name.\nDouble check for typos." );
 				// result = false	
 			}
 		}
 
-		if(!result)
+		if ( !result )
 		{
 			obj.filled = true;
 			obj.fillColor = highlight;
@@ -166,13 +168,13 @@ function container()
 		return result;
 	}
 
-	function writeDatabaseFile()
+	function writeDatabaseFile ()
 	{
 		var parenPat = /[\(\)]/g;
-		var newContents = "var data = " + JSON.stringify(data).replace(parenPat,"");
-		var dbFile = File(dbPath);
-		dbFile.open("w");
-		dbFile.write(newContents);
+		var newContents = "var data = " + JSON.stringify( data ).replace( parenPat, "" );
+		var dbFile = File( dbPath );
+		dbFile.open( "w" );
+		dbFile.write( newContents );
 		dbFile.close();
 	}
 
@@ -185,15 +187,15 @@ function container()
 	///////Begin////////
 	////Data Storage////
 	////////////////////
-	
+
 	var dbPath = dataPath + "placement_guides_database.js";
 
-	eval("#include \"" + dbPath + "\"");
+	eval( "#include \"" + dbPath + "\"" );
 
 
 
 	//all possible art locations and their respective code from the builder
-	var artworkTargets = 
+	var artworkTargets =
 	{
 		"Front Upper Right": "TFUR",
 		"Front Upper Left": "TFUL",
@@ -263,10 +265,10 @@ function container()
 
 	//a cmyk color to use to highlight any proposed guides with missing or incorrect properties
 	var highlight = new CMYKColor;
-		highlight.cyan = 0;
-		highlight.magenta = 100;
-		highlight.yellow = 75;
-		highlight.black = 0;
+	highlight.cyan = 0;
+	highlight.magenta = 100;
+	highlight.yellow = 75;
+	highlight.black = 0;
 
 
 	////////End/////////
@@ -289,30 +291,30 @@ function container()
 	var thisConfig;
 
 
-	var code = getCode(layers[0].name);
+	var code = getCode( layers[ 0 ].name );
 
-	if(entryExist(code))
+	if ( entryExist( code ) )
 	{
-		valid = confirm(code + " already has an entry in the database. Do you want to overwrite it?");
+		valid = confirm( code + " already has an entry in the database. Do you want to overwrite it?" );
 	}
 
-	if(valid && sel.length === 0)
+	if ( valid && sel.length === 0 )
 	{
-		errorList.push("You must select your guide boxes.");
-		errorList.push("Create a shape for each guide you need and name it according to the 4 letter target code.");
-		errorList.push("See William if you need clarification about target codes.");
+		errorList.push( "You must select your guide boxes." );
+		errorList.push( "Create a shape for each guide you need and name it according to the 4 letter target code." );
+		errorList.push( "See William if you need clarification about target codes." );
 		valid = false;
 	}
 
-	if(valid)
+	if ( valid )
 	{
-		data[code] = makeThemGuides(sel);
+		data[ code ] = makeThemGuides( sel );
 	}
 
-	if(valid && data[code])
+	if ( valid && data[ code ] )
 	{
 		writeDatabaseFile();
-		alert("Successfully updated the database.\nYou're ready to make placement guides for " + code + ".");
+		alert( "Successfully updated the database.\nYou're ready to make placement guides for " + code + "." );
 	}
 
 
@@ -322,9 +324,9 @@ function container()
 
 	/*****************************************************************************/
 
-	if(errorList.length>0)
+	if ( errorList.length > 0 )
 	{
-		sendErrors(errorList);
+		sendErrors( errorList );
 	}
 	return valid
 

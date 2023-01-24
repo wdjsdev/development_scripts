@@ -9,64 +9,66 @@ Description: display a dialog to the user and allow them to select all of the gu
 Build number: 1.0
 */
 
-function container()
+function container ()
 {
 	var valid = true;
-	
 
-	function getUtilities()
+
+	function getUtilities ()
 	{
-		var result = [];
-		var utilPath = "/Volumes/Customization/Library/Scripts/Script_Resources/Data/";
-		var ext = ".jsxbin"
-
-		//check for dev utilities preference file
-		var devUtilitiesPreferenceFile = File("~/Documents/script_preferences/dev_utilities.txt");
-
-		if(devUtilitiesPreferenceFile.exists)
+		var utilNames = [ "Utilities_Container" ]; //array of util names
+		var utilFiles = []; //array of util files
+		//check for dev mode
+		var devUtilitiesPreferenceFile = File( "~/Documents/script_preferences/dev_utilities.txt" );
+		function readDevPref ( dp ) { dp.open( "r" ); var contents = dp.read() || ""; dp.close(); return contents; }
+		if ( devUtilitiesPreferenceFile.exists && readDevPref( devUtilitiesPreferenceFile ).match( /true/i ) )
 		{
-			devUtilitiesPreferenceFile.open("r");
-			var prefContents = devUtilitiesPreferenceFile.read();
-			devUtilitiesPreferenceFile.close();
-			if(prefContents === "true")
+			$.writeln( "///////\n////////\nUsing dev utilities\n///////\n////////" );
+			var devUtilPath = "~/Desktop/automation/utilities/";
+			utilFiles = [ devUtilPath + "Utilities_Container.js", devUtilPath + "Batch_Framework.js" ];
+			return utilFiles;
+		}
+
+		var dataResourcePath = customizationPath + "Library/Scripts/Script_Resources/Data/";
+
+		for ( var u = 0; u < utilNames.length; u++ )
+		{
+			var utilFile = new File( dataResourcePath + utilNames[ u ] + ".jsxbin" );
+			if ( utilFile.exists )
 			{
-				utilPath = "~/Desktop/automation/utilities/";
-				ext = ".js";
+				utilFiles.push( utilFile );
 			}
+
 		}
 
-		if($.os.match("Windows"))
+		if ( !utilFiles.length )
 		{
-			utilPath = utilPath.replace("/Volumes/","//AD4/");
+			alert( "Could not find utilities. Please ensure you're connected to the appropriate Customization drive." );
+			return [];
 		}
 
-		result.push(utilPath + "Utilities_Container" + ext);
-		result.push(utilPath + "Batch_Framework" + ext);
 
-		if(!result.length)
-		{
-			valid = false;
-			alert("Failed to find the utilities.");
-		}
-		return result;
+		return utilFiles;
 
 	}
-
 	var utilities = getUtilities();
-	for(var u=0,len=utilities.length;u<len;u++)
+
+	for ( var u = 0, len = utilities.length; u < len && valid; u++ )
 	{
-		eval("#include \"" + utilities[u] + "\"");	
+		eval( "#include \"" + utilities[ u ] + "\"" );
 	}
 
-	if(!valid)return;
+	if ( !valid || !utilities.length ) return;
 
-	
-	
+	DEV_LOGGING = user === "will.dowling";
+
+
+
 	//verify the existence of a document
-	if(app.documents.length === 0)
+	if ( app.documents.length === 0 )
 	{
-		errorList.push("You must have a document open.");
-		sendErrors(errorList);
+		errorList.push( "You must have a document open." );
+		sendErrors( errorList );
 		return false;
 	}
 
@@ -78,70 +80,70 @@ function container()
 
 	//sendErrors Function Description
 	//Display any errors to the user in a preformatted list
-	function sendErrors(errorList)
+	function sendErrors ( errorList )
 	{
-		alert(errorList.join("\n"));
+		alert( errorList.join( "\n" ) );
 	}
 
-	function whichGuides()
+	function whichGuides ()
 	{
 		var result = [];
 		var checkBoxes = [];
 		/* beautify ignore:start */
-		var w = new Window("dialog", "Check a box for each guide you need.");
-			var txtGroup = w.add("group");
-				txtGroup.orientation = "column";
-				var topTxt = txtGroup.add("statictext", undefined, "***YOU WILL NEED TO SIZE THEM TO YOUR NEEDS***");
-				var topTxt2 = txtGroup.add("statictext", undefined, "This just creates prenamed boxes.");
-			var boxGroup = w.add("group");
-				boxGroup.orientation = "column";
-				for(var target in artworkTargets)
+		var w = new Window( "dialog", "Check a box for each guide you need." );
+		var txtGroup = w.add( "group" );
+		txtGroup.orientation = "column";
+		var topTxt = txtGroup.add( "statictext", undefined, "***YOU WILL NEED TO SIZE THEM TO YOUR NEEDS***" );
+		var topTxt2 = txtGroup.add( "statictext", undefined, "This just creates prenamed boxes." );
+		var boxGroup = w.add( "group" );
+		boxGroup.orientation = "column";
+		for ( var target in artworkTargets )
+		{
+			makeCheckBox( target );
+		}
+		var btnGroup = w.add( "group" );
+		var submit = btnGroup.add( "button", undefined, "Submit" );
+		submit.onClick = function ()
+		{
+			for ( var x = 0; x < checkBoxes.length; x++ )
+			{
+				if ( checkBoxes[ x ].value )
 				{
-					makeCheckBox(target);
+					result.push( artworkTargets[ checkBoxes[ x ].text ] );
 				}
-			var btnGroup = w.add("group");
-				var submit = btnGroup.add("button", undefined, "Submit");
-					submit.onClick = function()
-					{
-						for(var x=0;x<checkBoxes.length;x++)
-						{
-							if(checkBoxes[x].value)
-							{
-								result.push(artworkTargets[checkBoxes[x].text]);
-							}
-						}
-						w.close();
-					}
+			}
+			w.close();
+		}
 
-				var cancel = btnGroup.add("button", undefined, "Cancel");
-					cancel.onClick = function()
-					{
-						result = null;
-						w.close();
-					}
-		
+		var cancel = btnGroup.add( "button", undefined, "Cancel" );
+		cancel.onClick = function ()
+		{
+			result = null;
+			w.close();
+		}
+
 
 		w.show();
 
-		return result;	
+		return result;
 
-		function makeCheckBox(target)
+		function makeCheckBox ( target )
 		{
-			checkBoxes.push(boxGroup.add("checkbox", undefined, target));
+			checkBoxes.push( boxGroup.add( "checkbox", undefined, target ) );
 		}
 	}
 
-	function makeBoxes(guides)
+	function makeBoxes ( guides )
 	{
 		var dim = 36;
 		var left = 0;
 		var top = dim * 2;
 		var newBox;
 
-		for(var x=0;x<guides.length;x++)
+		for ( var x = 0; x < guides.length; x++ )
 		{
-			newBox = layers[0].pathItems.rectangle(top,left,dim,dim);
-			newBox.name = guides[x];
+			newBox = layers[ 0 ].pathItems.rectangle( top, left, dim, dim );
+			newBox.name = guides[ x ];
 			left += dim;
 		}
 	}
@@ -160,7 +162,7 @@ function container()
 
 
 	//all possible art locations and their respective code from the builder
-	var artworkTargets = 
+	var artworkTargets =
 	{
 		"Front Upper Right": "TFUR",
 		"Front Upper Left": "TFUL",
@@ -216,9 +218,9 @@ function container()
 
 	var guidesNeeded = whichGuides();
 
-	if(guidesNeeded)
+	if ( guidesNeeded )
 	{
-		makeBoxes(guidesNeeded);
+		makeBoxes( guidesNeeded );
 	}
 
 	////////End/////////
@@ -227,9 +229,9 @@ function container()
 
 	/*****************************************************************************/
 
-	if(errorList.length>0)
+	if ( errorList.length > 0 )
 	{
-		sendErrors(errorList);
+		sendErrors( errorList );
 	}
 	return valid
 

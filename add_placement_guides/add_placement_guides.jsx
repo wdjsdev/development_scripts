@@ -9,64 +9,66 @@ Build number: 1.0
 
 */
 
-function addPlacementGuides()
+function addPlacementGuides ()
 {
 
 	var valid = true;
 
-	function getUtilities()
+	function getUtilities ()
 	{
-		var result = [];
-		var utilPath = "/Volumes/Customization/Library/Scripts/Script_Resources/Data/";
-		var ext = ".jsxbin"
-
-		//check for dev utilities preference file
-		var devUtilitiesPreferenceFile = File("~/Documents/script_preferences/dev_utilities.txt");
-
-		if(devUtilitiesPreferenceFile.exists)
+		var utilNames = [ "Utilities_Container" ]; //array of util names
+		var utilFiles = []; //array of util files
+		//check for dev mode
+		var devUtilitiesPreferenceFile = File( "~/Documents/script_preferences/dev_utilities.txt" );
+		function readDevPref ( dp ) { dp.open( "r" ); var contents = dp.read() || ""; dp.close(); return contents; }
+		if ( devUtilitiesPreferenceFile.exists && readDevPref( devUtilitiesPreferenceFile ).match( /true/i ) )
 		{
-			devUtilitiesPreferenceFile.open("r");
-			var prefContents = devUtilitiesPreferenceFile.read();
-			devUtilitiesPreferenceFile.close();
-			if(prefContents === "true")
+			$.writeln( "///////\n////////\nUsing dev utilities\n///////\n////////" );
+			var devUtilPath = "~/Desktop/automation/utilities/";
+			utilFiles = [ devUtilPath + "Utilities_Container.js", devUtilPath + "Batch_Framework.js" ];
+			return utilFiles;
+		}
+
+		var dataResourcePath = customizationPath + "Library/Scripts/Script_Resources/Data/";
+
+		for ( var u = 0; u < utilNames.length; u++ )
+		{
+			var utilFile = new File( dataResourcePath + utilNames[ u ] + ".jsxbin" );
+			if ( utilFile.exists )
 			{
-				utilPath = "~/Desktop/automation/utilities/";
-				ext = ".js";
+				utilFiles.push( utilFile );
 			}
+
 		}
 
-		if($.os.match("Windows"))
+		if ( !utilFiles.length )
 		{
-			utilPath = utilPath.replace("/Volumes/","//AD4/");
+			alert( "Could not find utilities. Please ensure you're connected to the appropriate Customization drive." );
+			return [];
 		}
 
-		result.push(utilPath + "Utilities_Container" + ext);
-		result.push(utilPath + "Batch_Framework" + ext);
 
-		if(!result.length)
-		{
-			valid = false;
-			alert("Failed to find the utilities.");
-		}
-		return result;
+		return utilFiles;
 
 	}
-
 	var utilities = getUtilities();
-	for(var u=0,len=utilities.length;u<len;u++)
+
+	for ( var u = 0, len = utilities.length; u < len && valid; u++ )
 	{
-		eval("#include \"" + utilities[u] + "\"");	
+		eval( "#include \"" + utilities[ u ] + "\"" );
 	}
 
-	if(!valid)return;
+	if ( !valid || !utilities.length ) return;
+
+	DEV_LOGGING = user === "will.dowling";
 
 
 
 	//verify the existence of a document
-	if(app.documents.length === 0)
+	if ( app.documents.length === 0 )
 	{
-		errorList.push("You must have a document open.");
-		sendErrors(errorList);
+		errorList.push( "You must have a document open." );
+		sendErrors( errorList );
 		return false;
 	}
 
@@ -78,18 +80,18 @@ function addPlacementGuides()
 
 	//sendErrors Function Description
 	//Display any errors to the user in a preformatted list
-	function sendErrors(errorList)
+	function sendErrors ( errorList )
 	{
-		alert(errorList.join("\n"));
+		alert( errorList.join( "\n" ) );
 	}
 
-	function setupPlacementGuideLayer()
+	function setupPlacementGuideLayer ()
 	{
 		try
 		{
-			infoLay.layers["Placement Guides"].remove();
+			infoLay.layers[ "Placement Guides" ].remove();
 		}
-		catch(e)
+		catch ( e )
 		{
 			//no placement guides layer existed
 		}
@@ -97,19 +99,19 @@ function addPlacementGuides()
 		guidesLay.name = "Placement Guides";
 	}
 
-	function getCode(layName)
+	function getCode ( layName )
 	{
 		var result;
 		var pat = /(.*)([-_][\d]{3,}([-_][a-z])?)/i;
-		result = layName.match(pat)[1];
+		result = layName.match( pat )[ 1 ];
 
 		return result;
 	}
 
-	function entryExist(code)
+	function entryExist ( code )
 	{
 		var result;
-		if(data[code])
+		if ( data[ code ] )
 		{
 			result = true;
 		}
@@ -120,14 +122,14 @@ function addPlacementGuides()
 		return result;
 	}
 
-	function addGuides(data)
+	function addGuides ( data )
 	{
-		var thisObj,newGuide;
-		for(var thing in data)
+		var thisObj, newGuide;
+		for ( var thing in data )
 		{
-			if(thing.indexOf("created")>-1)continue;
-			thisObj = data[thing];
-			newGuide = guidesLay.pathItems.rectangle(thisObj.y,thisObj.x,thisObj.w,thisObj.h);	
+			if ( thing.indexOf( "created" ) > -1 ) continue;
+			thisObj = data[ thing ];
+			newGuide = guidesLay.pathItems.rectangle( thisObj.y, thisObj.x, thisObj.w, thisObj.h );
 			newGuide.name = thing;
 			newGuide.filled = false;
 			newGuide.stroked = false;
@@ -151,7 +153,7 @@ function addPlacementGuides()
 	//get the database file
 	var dbPath = dataPath + "placement_guides_database.js";
 
-	eval("#include \"" + dbPath + "\"");
+	eval( "#include \"" + dbPath + "\"" );
 
 
 	////////End/////////
@@ -168,30 +170,30 @@ function addPlacementGuides()
 	var layers = docRef.layers;
 	var aB = docRef.artboards;
 	var swatches = docRef.swatches;
-	var infoLay = docRef.layers[0].layers["Information"];
+	var infoLay = docRef.layers[ 0 ].layers[ "Information" ];
 	var guidesLay;
 
 
 	var errorList = [];
 
-	var code = getCode(layers[0].name);
+	var code = getCode( layers[ 0 ].name );
 
-	if(!code)
+	if ( !code )
 	{
 		valid = false;
 	}
 
-	if(valid && entryExist(code))
+	if ( valid && entryExist( code ) )
 	{
 		infoLay.locked = false;
 		setupPlacementGuideLayer();
-		addGuides(data[code]);
+		addGuides( data[ code ] );
 		infoLay.locked = true;
 	}
 	else
 	{
-		errorList.push("There's no entry in the database for the garment: " + code + ".");
-		errorList.push("Please run the \"Log_Placement_Guides.jsx\" script first.");
+		errorList.push( "There's no entry in the database for the garment: " + code + "." );
+		errorList.push( "Please run the \"Log_Placement_Guides.jsx\" script first." );
 		valid = false;
 	}
 
@@ -203,9 +205,9 @@ function addPlacementGuides()
 
 	/*****************************************************************************/
 
-	if(errorList.length>0)
+	if ( errorList.length > 0 )
 	{
-		sendErrors(errorList);
+		sendErrors( errorList );
 	}
 	return valid
 
