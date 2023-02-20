@@ -257,7 +257,7 @@ function editDatabase ()
 		result.sizes = cleanupInput( sInput.text );
 		result.pieces = cleanupInput( pInput.text );
 		result.artLayers = cleanupInput( aInput.text );
-		result.scaleFrontLogo = sflInput.text.toLowerCase().indexOf( "true" ) > -1 ? true : false;
+		result.scaleFrontLogo = sflInput.text.match( /true/i ) ? true : false;
 
 
 		if ( wsInput.text !== "" )
