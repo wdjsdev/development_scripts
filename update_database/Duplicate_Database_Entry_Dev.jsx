@@ -58,12 +58,12 @@ function duplicateDatabaseEntry ()
 	//logic container
 	function validate ()
 	{
-		var garmentRegex = /[fpbm][dsmb][b]?[-_][\d]{3,}[wyg]?$/i
-		if ( !garmentRegex.test( searchInput.text ) || !garmentRegex.test( newInput.text ) )
-		{
-			alert( "Invalid garment code." );
-			return false;
-		}
+		// var garmentRegex = /[fpbm][dsmb][b]?[-_][\d]{3,}[wyg]?$/i
+		// if ( !garmentRegex.test( searchInput.text ) || !garmentRegex.test( newInput.text ) )
+		// {
+		// 	alert( "Invalid garment code." );
+		// 	return false;
+		// }
 
 		if ( !prepressInfo[ searchInput.text ] )
 		{

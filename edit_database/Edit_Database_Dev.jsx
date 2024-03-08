@@ -196,7 +196,7 @@ function editDatabase ()
 	function validate ()
 	{
 		var result = true;
-		var gcPat = /^[a-z]*-[\d]*[a-z]?$/i;
+		var gcPat = /^[a-z]*-[\d]*[a-z]{0,2}$/i;
 		var errorMsg = "Error:";
 
 		if ( !gcInput.text || !gcPat.test( gcInput.text ) )
@@ -333,8 +333,8 @@ function editDatabase ()
 		bti.updatedOn.push( logTime() );
 		bti.updatedBy = pi.updatedBy = user;
 
-		writeDatabase( clPath, "var prepressInfo = " + JSON.stringify( prepressInfo ) );
-		writeDatabase( btPath, "var templateInfo = " + JSON.stringify( templateInfo ) );
+		writeDatabase( clPath, "var prepressInfo = " + JSON.stringify( prepressInfo, null, "\t" ) );
+		writeDatabase( btPath, "var templateInfo = " + JSON.stringify( templateInfo, null, "\t" ) );
 
 		alert( "Successfully updated the database." );
 	}

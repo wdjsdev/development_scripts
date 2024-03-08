@@ -159,7 +159,7 @@ function FindAndReplaceObjectNames ()
 			for ( var y = 0, yLen = curLay.pageItems.length; y < yLen; y++ )
 			{
 				curItem = curLay.pageItems[ y ];
-				renameItem( curItem );
+				curItem.name = curItem.name.replace( ren )
 			}
 		}
 	}
