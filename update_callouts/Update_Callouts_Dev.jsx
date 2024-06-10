@@ -433,7 +433,7 @@ function test ()
                 var thicknessThreshold = .065; // Adjust as needed
 
                 // If the minimum distance is above the threshold, it's not a crosshair
-                if ( minDist > thicknessThreshold )
+                if ( minDist < .05 || minDist > thicknessThreshold )
                 {
                     return false;
                 }
@@ -802,8 +802,8 @@ function test ()
 
         } );
 
-        log.l( "cleaning up swatches" )
-        runAction( "cleanup_swatches", CLEANUP_SWATCHES_ACTION_STRING );
+        // log.l( "cleaning up swatches" )
+        // runAction( "cleanup_swatches", CLEANUP_SWATCHES_ACTION_STRING );
         var swatches = afc( doc, "swatches" );
         log.l( "current swatches = " + swatches.map( function ( s ) { return s.name } ).join( ", " ) );
         swatches.forEach( function ( swatch )
@@ -843,6 +843,7 @@ function test ()
     {
         srcFiles.forEach( function ( f )
         {
+            if ( f.name.match( /src/i ) ) return;
             app.open( f );
             removeProdInfo();
             applyCallouts();
@@ -897,7 +898,7 @@ function test ()
                 piece.visible = true;
                 piece.locked = false;
                 var pieceName = piece.name;
-                if ( pieceName.match( /^L/i ) ) { debugger };
+                // if ( pieceName.match( /^L/i ) ) { debugger };
                 var pieceProdInfoGroup = findSpecificPageItem( prodInfoGroup, pieceName + " Prod Info", "imatch" );
                 pieceProdInfoGroup.duplicate( piece );
             } );
